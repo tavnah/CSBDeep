@@ -30,7 +30,7 @@ if __name__ == '__main__':
     plot_history(history, ['loss', 'val_loss'], ['mse', 'val_mse', 'mae', 'val_mae'])
 
     x = imread('/data/GAN_project/CARE/Synthetic_tubulin_gfp/test_data/input_n_avg_10_all.tif')
-    upsampled = model.predict(x, )
+    upsampled = model.predict(x,'XY', 4 )
     plt.figure(figsize=(12, 4.5))
     _P = model.keras_model.predict(X_val[:5])
     if config.probabilistic:
