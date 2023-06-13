@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     if create_ptchs:
         output_folder = '/data/GAN_project/CARE/simulated_LR/train_data/shareloc_4_small/1000_no_dense_thresh0.1_higherSNR_lowerPSF'
-        output_path = output_folder + '/train_data.npz'
+        output_path = output_folder + '/train_data_1000.npz'
         raw_data = RawData.from_folder (
             basepath    = '/data/GAN_project/CARE/simulated_LR/train_data/shareloc_4_small/1000_no_dense_thresh0.1_higherSNR_lowerPSF', #path with
             source_dirs = ['low'],
@@ -47,11 +47,14 @@ if __name__ == '__main__':
     if train:
         (X, Y), (X_val, Y_val), axes = load_training_data(output_path, validation_split=0.1, verbose=True ,axes = 'SCYX') ##only for original CARE data
         c = axes_dict(axes)['C']
-
+        X = X[:1000,:,:,:]
+        Y = Y[:1000,:,:,:]
+        X_val = X_val[:100,:,:,:]
+        Y_val = Y_val[:100,:,:,:]
         n_channel_in, n_channel_out = X.shape[c], Y.shape[c]
         #axes = 'XYC' #for CARE original data
-        config = Config(axes, n_channel_in, n_channel_out, train_steps_per_epoch=500, train_batch_size=15)
-        model = UpsamplingCARE(config, 'model_care', basedir='models')
+        config = Config(axes, n_channel_in, n_channel_out, train_steps_per_epoch=100, train_batch_size=15)
+        model = UpsamplingCARE(config, 'model_care_1000_2', basedir='models')
         history = model.train(X, Y, validation_data=(X_val, Y_val))
     if print_hist:
         plt.figure(figsize=(16, 5))
