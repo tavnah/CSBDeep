@@ -27,34 +27,34 @@ if __name__ == '__main__':
     #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     #trained care model: model_care
     create_ptchs = False
-    train = True
-    print_hist = True
-    show_vld = True
-    load_model = False
+    train = False
+    print_hist = False
+    show_vld = False
+    load_model = True
 
     if create_ptchs:
-        output_folder = '/data/GAN_project/CARE/simulated_LR/train_data/shareloc_4_small/1000_no_dense_thresh0.1_higherSNR_lowerPSF'
+        output_folder = '/data/GAN_project/CARE/simulated_LR/train_data/shareloc_4_small/mitochondria/thresh0.18_pix0.106_lamb660_NA1.49_smoothed_noperlin'
         output_path = output_folder + '/train_data_1000.npz'
         raw_data = RawData.from_folder (
-            basepath    = '/data/GAN_project/CARE/simulated_LR/train_data/shareloc_4_small/1000_no_dense_thresh0.1_higherSNR_lowerPSF', #path with
+            basepath    = '/data/GAN_project/CARE/simulated_LR/train_data/shareloc_4_small/mitochondria/thresh0.18_pix0.106_lamb660_NA1.49_smoothed_noperlin', #path with
             source_dirs = ['low'],
             target_dir  = 'high',
             axes        = 'YX',
         )
         #train_npz_path = '/data/GAN_project/CARE/simulated_LR/train_data/train_data.npz'
-        X, Y, XY_axes = create_patches(raw_data, patch_size=(128, 128), n_patches_per_image=2,save_file = output_path)
-    output_path = '/data/GAN_project/CARE/Synthetic_tubulin_gfp/train_data/data_label.npz'
+        X, Y, XY_axes = create_patches(raw_data, patch_size=(256, 256), n_patches_per_image=1,save_file = output_path)
+    #output_path = '/data/GAN_project/CARE/Synthetic_tubulin_gfp/train_data/data_label.npz' #for original CARE data
     if train:
         (X, Y), (X_val, Y_val), axes = load_training_data(output_path, validation_split=0.1, verbose=True ,axes = 'SCYX') ##only for original CARE data
         c = axes_dict(axes)['C']
-        X = X[:1000,:,:,:]
-        Y = Y[:1000,:,:,:]
-        X_val = X_val[:100,:,:,:]
-        Y_val = Y_val[:100,:,:,:]
+        # X = X[:1000,:,:,:]
+        # Y = Y[:1000,:,:,:]
+        # X_val = X_val[:100,:,:,:]
+        # Y_val = Y_val[:100,:,:,:]
         n_channel_in, n_channel_out = X.shape[c], Y.shape[c]
         #axes = 'XYC' #for CARE original data
-        config = Config(axes, n_channel_in, n_channel_out, train_steps_per_epoch=100, train_batch_size=15)
-        model = UpsamplingCARE(config, 'model_care_1000_2', basedir='models')
+        config = Config(axes, n_channel_in, n_channel_out, train_steps_per_epoch=400, train_batch_size=15) #from 500 to 400
+        model = UpsamplingCARE(config, 'model_mitochondria_2', basedir='models')
         history = model.train(X, Y, validation_data=(X_val, Y_val))
     if print_hist:
         plt.figure(figsize=(16, 5))
@@ -71,7 +71,7 @@ if __name__ == '__main__':
                      'bottom row: predicted from source');
         plt.show()
     if load_model:
-        model = UpsamplingCARE(config=None, name='model_care', basedir='models')
+        model = UpsamplingCARE(config=None, name='model_mitochondria_2', basedir='models')
 
     x = imread('/data/GAN_project/CARE/Synthetic_tubulin_gfp/test_data/input_n_avg_10_all.tif')
     import cv2
